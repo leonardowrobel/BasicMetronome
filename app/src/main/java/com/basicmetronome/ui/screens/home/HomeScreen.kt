@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -13,18 +12,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import com.basicmetronome.Greeting
 import com.basicmetronome.ui.theme.BasicMetronomeTheme
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
+fun HomeScreen(viewModel: HomeViewModel) {
+
+    val homeUiState by viewModel.uiState.collectAsState()
+
     BasicMetronomeTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -39,7 +41,8 @@ fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        viewModel.bpm.toString(), fontSize = 50.sp,
+                        text = homeUiState.currentBpm.toString(),
+                        fontSize = 50.sp,
                         textAlign = TextAlign.Center
                     )
                     Text(
@@ -50,13 +53,23 @@ fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    FilledButtonExample("-", onClick = { viewModel.decrementBpm() })
+                    FilledButtonExample("-", onClick = { viewModel.modifyBpm((-1)) })
                     Spacer(modifier = Modifier.width(10.dp))
-                    FilledButtonExample("+", onClick = { viewModel.incrementBpm() })
+                    FilledButtonExample("+", onClick = { viewModel.modifyBpm(1) })
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilledButtonExample("-5", onClick = { viewModel.modifyBpm((-5)) })
+                    Spacer(modifier = Modifier.width(10.dp))
+                    FilledButtonExample("+5", onClick = { viewModel.modifyBpm((5)) })
                 }
                 Column {
-                    FilledButtonExample("Play", onClick = { viewModel.playBeep() })
-                    FilledButtonExample("Stop", onClick = { viewModel.stopBeep() })
+                    if (homeUiState.isPlaying) {
+                        FilledButtonExample("Stop", onClick = { viewModel.stopBeep() })
+                    } else {
+                        FilledButtonExample("Play", onClick = { viewModel.playBeep() })
+                    }
                 }
             }
         }
@@ -73,5 +86,5 @@ fun FilledButtonExample(text: String, onClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+//    HomeScreen()
 }
